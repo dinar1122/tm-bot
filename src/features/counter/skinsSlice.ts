@@ -21,17 +21,30 @@ const initialState: SkinsSliceState = {
   status: "success",
 }
 
-export const setRecommendedPriceAndUpdate = createAsyncThunk<any, any, { state: RootState }>(
-  'skinsOnSale/setRecommendedPriceAndUpdate',
+export const setRecommendedPriceAndUpdate = createAsyncThunk<
+  void,
+  { hashName: string; recommendedPrice: number },
+  { state: RootState }
+>(
+  "skinsOnSale/setRecommendedPriceAndUpdate",
   async ({ hashName, recommendedPrice }, { dispatch, getState }) => {
-    const state = getState() as RootState;
-    const skin = state.skinsOnSale.items.find(skin => skin.market_hash_name === hashName);
+    const state = getState() as RootState
+    const skin = state.skinsOnSale.items.find(
+      skin => skin.market_hash_name === hashName,
+    )
 
-    if (skin) {
-      dispatch(setRecommendedPrice({ hashName, recommendedPrice }));
-      await dispatch(skinsApi.endpoints.setNewPriceForItem.initiate({ itemId: skin.item_id, price: (recommendedPrice * 100) }));
+    if ( skin && (skin.recommendedPrice === null || skin.recommendedPrice > recommendedPrice)) {
+      if ((skin.price) > recommendedPrice) {
+        dispatch(setRecommendedPrice({ hashName, recommendedPrice }))
+        await dispatch(
+        skinsApi.endpoints.setNewPriceForItem.initiate({
+          itemId: skin.item_id,
+          price: recommendedPrice * 100,
+        }),
+      )
+      }
     }
-  }
+  },
 );
 
 export const skinsSlice = createSlice({
@@ -53,9 +66,10 @@ export const skinsSlice = createSlice({
         if (skin.market_hash_name === hashName) {
           if (
             skin.recommendedPrice === null ||
-            skin.recommendedPrice > recommendedPrice
+            skin.recommendedPrice > recommendedPrice 
           ) {
-            skin.recommendedPrice = recommendedPrice;
+            if ((skin.price) > recommendedPrice) {skin.recommendedPrice = recommendedPrice}
+            
           }
         }
       })
@@ -78,12 +92,26 @@ export const skinsSlice = createSlice({
           }
         },
       )
-      .addMatcher(skinsApi.endpoints.setNewPriceForItem.matchFulfilled, (state, action) => {
-        const { originalArgs } = action.meta.arg;
-        if (originalArgs.price == 0) {
-          state.items = state.items.filter(item => item.item_id !== originalArgs.itemId);
-        }
-      })
+      .addMatcher(
+        skinsApi.endpoints.setNewPriceForItem.matchFulfilled,
+        (state, action) => {
+          const { originalArgs } = action.meta.arg
+          if (originalArgs.price == 0) {
+            state.items = state.items.filter(
+              item => item.item_id !== originalArgs.itemId,
+            )
+          }
+        },
+      )
+      .addMatcher(
+        skinsApi.endpoints.setItemOnSellingById.matchFulfilled,
+        (state, action) => {
+          const { originalArgs } = action.meta.arg
+          if (action.payload) {
+            state.items = [...state.items, originalArgs]
+          }
+        },
+      )
       .addMatcher(skinsApi.endpoints.getSkinsOnSale.matchPending, state => {
         state.status = "loading"
       })
@@ -93,13 +121,17 @@ export const skinsSlice = createSlice({
   },
 })
 
-export const updatePriceThunk = ({ itemId, price }: { itemId: string; price: number }): AppThunk => async (dispatch, getState) => {
-  try {
-    await dispatch(skinsApi.endpoints.setNewPriceForItem.initiate({ itemId, price }))
-  } catch (error) {
-    console.error('Failed to update price: ', error)
+export const updatePriceThunk =
+  ({ itemId, price }: { itemId: string; price: number }): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      await dispatch(
+        skinsApi.endpoints.setNewPriceForItem.initiate({ itemId, price }),
+      )
+    } catch (error) {
+      console.error("Failed to update price: ", error)
+    }
   }
-}
 
 export const { addSkin, removeSkin, setRecommendedPrice, setSkins } =
   skinsSlice.actions
