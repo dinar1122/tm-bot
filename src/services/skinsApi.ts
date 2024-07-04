@@ -1,11 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { ACCESS_TOKEN } from '../constants';
+import { ACCESS_TOKEN, BASE_URL } from '../constants';
 
 const API_KEY = '99nP6l7m8tZY6K3qEj20qgr2FvwwTP1';
 
 export const skinsApi = createApi({
   reducerPath: 'skinsApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://market.csgo.com/api/v2/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
   endpoints: (builder) => ({
     getBalance: builder.query<any, void>({
       query: () => ({

@@ -11,6 +11,9 @@ import WebSocketComponent from "../features/counter/WebSocketComponent"
 import { selectSkins, selectSkinsStatus } from "../features/counter/skinsSlice"
 import { Button, ToggleSwitch } from "flowbite-react"
 import { TiDelete } from "react-icons/ti"
+import { Link } from "react-router-dom"
+import { BASE_URL, BASE_URL_STEAMMARKET, BASE_URL_USER } from "../constants"
+import DefaultLink from "./UI/DefaultLink"
 
 const ItemsOnSale = () => {
   const data = useSelector(selectSkins)
@@ -21,15 +24,15 @@ const ItemsOnSale = () => {
   const [removeAllItems] = useLazyRemoveAllItemsFromSaleQuery()
   const [editingPrice, setEditingPrice] = useState(null)
   const [newPrice, setNewPrice] = useState("")
-  
-  useEffect(()=> {
+
+  useEffect(() => {
     refetchItems()
-  },[])
+  }, [])
 
   if (status === "loading") {
     return <Spinner />
   }
-
+  console.log(data)
   if (!data?.length) {
     return <div>No items on sale</div>
   }
@@ -57,7 +60,7 @@ const ItemsOnSale = () => {
   const handleRemoveAllFromMarket = () => {
     removeAllItems()
   }
- 
+
   const handleSaveRecommenendedPrice = (item: any) => {
     let price = parseFloat(item.recommendedPrice) * 100
     let itemId = item.item_id
@@ -76,8 +79,13 @@ const ItemsOnSale = () => {
         >
           Refetch
         </DefaultButton>
-        <DefaultButton onClick={()=>{handleRemoveAllFromMarket()}}>Remove all items from market</DefaultButton>
-        
+        <DefaultButton
+          onClick={() => {
+            handleRemoveAllFromMarket()
+          }}
+        >
+          Remove all items from market
+        </DefaultButton>
       </div>
       <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -87,6 +95,9 @@ const ItemsOnSale = () => {
             </th>
             <th scope="col" className="px-6 py-3">
               Market Hash Name
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Links
             </th>
             <th scope="col" className="px-6 py-3">
               Position
@@ -111,7 +122,22 @@ const ItemsOnSale = () => {
               >
                 {item.assetid}
               </th>
-              <td className="px-6 py-4">{item.market_hash_name}</td>
+              <td className="px-6 py-4 text-xl text-gray-700 font-semibold">
+                {item.market_hash_name}
+              </td>
+              <td className="px-6 py-4 flex flex-col">
+                <DefaultLink
+                  to={`${BASE_URL_USER}item/${item.classid}-${item.instanceid}-${item.market_hash_name}`}
+                >
+                  Market.tm
+                </DefaultLink>
+                <DefaultLink
+                  to={`${BASE_URL_STEAMMARKET}${item.market_hash_name}`}
+                >
+                  STEAM
+                </DefaultLink>
+              </td>
+
               <td className="px-6 py-4">{item.position}</td>
               <td className="px-6 py-4">
                 {editingPrice === item.assetid ? (
@@ -134,7 +160,9 @@ const ItemsOnSale = () => {
                     <div className="flex items-center justify-between space-x-3">
                       {item.recommendedPrice && (
                         <>
-                          <span className="w-[150px]  items-center p-2 selft-center rounded-lg bg-green-200">{item.recommendedPrice} rub</span>
+                          <span className="w-[150px]  items-center p-2 selft-center rounded-lg bg-green-200">
+                            {item.recommendedPrice} rub
+                          </span>
                           <Button
                             className="text-green-600 border-2 border-green-400"
                             onClick={() => handleSaveRecommenendedPrice(item)}

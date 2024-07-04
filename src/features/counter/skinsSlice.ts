@@ -84,7 +84,7 @@ export const skinsSlice = createSlice({
         skinsApi.endpoints.getSkinsOnSale.matchFulfilled,
         (state, action: PayloadAction<{ items: Skin[] }>) => {
           state.status = "success"
-          if (action.payload) {
+          if (action.payload.items) {
             state.items = action.payload.items.map(skin => ({
               ...skin,
               recommendedPrice: null,

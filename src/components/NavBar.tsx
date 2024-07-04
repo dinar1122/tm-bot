@@ -56,13 +56,13 @@ export const Navbar = () => {
               type="checkbox"
               checked={isSellingMode}
               onChange={handleToggleSellingMode}
-              label="Sale Mode"
+              label="SALES MODE"
             />
           </li>
           <li>
             <div >
               <span className="font-semibold text-lg">
-                Balance: {moneyBalance?.money}
+                BALANCE: {moneyBalance?.money}
               </span>
               <button
                 onClick={() => refetchBalance()}
@@ -73,13 +73,13 @@ export const Navbar = () => {
             </div>
           </li>
           <li>
-            <NavLink to="/prices">Price</NavLink>
+            <NavLink to="/prices">BEST PRICES</NavLink>
           </li>
           <li>
-            <NavLink to="/">inventory</NavLink>
+            <NavLink to="/">INVENTORY</NavLink>
           </li>
           <li>
-            <NavLink to="/selling">on Sale items</NavLink>
+            <NavLink to="/selling">SALES ITEMS</NavLink>
           </li>
           <li></li>
         </ul>

@@ -23,12 +23,7 @@ const WebSocketComponent = () => {
   };
 
   const toggleWebSocket = () => {
-    /* if (isConnected) {
-      wsRef.current.close();
-    } else if (wsRef.current) {
-      wsRef.current.send('newitems_go');
-    }
-    setIsConnected(!isConnected); */
+    
   };
 
   useEffect(() => {
