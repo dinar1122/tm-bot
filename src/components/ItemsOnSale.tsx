@@ -1,22 +1,30 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { useLazyGetSkinsOnSaleQuery, useSetNewPriceForItemMutation } from "../services/skinsApi"
+import {
+  useLazyGetSkinsOnSaleQuery,
+  useLazyRemoveAllItemsFromSaleQuery,
+  useSetNewPriceForItemMutation,
+} from "../services/skinsApi"
 import { DefaultButton } from "./UI/buttons/DefaultButton"
 import { Spinner } from "./UI/Spinner"
 import WebSocketComponent from "../features/counter/WebSocketComponent"
 import { selectSkins, selectSkinsStatus } from "../features/counter/skinsSlice"
-import { Button } from "flowbite-react"
+import { Button, ToggleSwitch } from "flowbite-react"
 import { TiDelete } from "react-icons/ti"
 
 const ItemsOnSale = () => {
   const data = useSelector(selectSkins)
   const status = useSelector(selectSkinsStatus)
-  const dispatch = useDispatch()
 
   const [setNewPriceById] = useSetNewPriceForItemMutation()
   const [refetchItems] = useLazyGetSkinsOnSaleQuery()
+  const [removeAllItems] = useLazyRemoveAllItemsFromSaleQuery()
   const [editingPrice, setEditingPrice] = useState(null)
   const [newPrice, setNewPrice] = useState("")
+  
+  useEffect(()=> {
+    refetchItems()
+  },[])
 
   if (status === "loading") {
     return <Spinner />
@@ -46,11 +54,15 @@ const ItemsOnSale = () => {
     let itemId = item.item_id
     setNewPriceById({ itemId, price })
   }
+  const handleRemoveAllFromMarket = () => {
+    removeAllItems()
+  }
+ 
   const handleSaveRecommenendedPrice = (item: any) => {
     let price = parseFloat(item.recommendedPrice) * 100
     let itemId = item.item_id
     console.log({ itemId, price })
-    /* setNewPriceById({ itemId, price }) */
+    setNewPriceById({ itemId, price })
     setEditingPrice(null)
   }
 
@@ -60,8 +72,12 @@ const ItemsOnSale = () => {
         <DefaultButton
           onClick={() => {
             refetchItems()
-          }}>Refetch</DefaultButton>
-        <DefaultButton>Remove all items from market</DefaultButton>
+          }}
+        >
+          Refetch
+        </DefaultButton>
+        <DefaultButton onClick={()=>{handleRemoveAllFromMarket()}}>Remove all items from market</DefaultButton>
+        
       </div>
       <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -112,15 +128,30 @@ const ItemsOnSale = () => {
                   </div>
                 ) : (
                   <div className="rounded-lg border border-blue-700 p-2 text-xl flex items-center justify-between">
-                    <span>{item.price} руб</span>
-                    {item.recommendedPrice && <><span>{item.recommendedPrice} руб</span>
-                    <Button className="text-green-600 border-2 border-green-400" onClick={() => handleSaveRecommenendedPrice(item)}>
-                      set lowest price
-                    </Button></>}
-                    <DefaultButton onClick={() => handleEditPrice(item)}>
-                      Change price
-                    </DefaultButton>
-                    <TiDelete type="button" onClick={()=>handleRemoveFromMarket(item)} className="text-black text-5xl text-blue-500 cursor-pointer" />
+                    <span className="w-[150px] bg-blue-200 items-center p-2 selft-center rounded-lg">
+                      {item.price} rub
+                    </span>
+                    <div className="flex items-center justify-between space-x-3">
+                      {item.recommendedPrice && (
+                        <>
+                          <span className="w-[150px]  items-center p-2 selft-center rounded-lg bg-green-200">{item.recommendedPrice} rub</span>
+                          <Button
+                            className="text-green-600 border-2 border-green-400"
+                            onClick={() => handleSaveRecommenendedPrice(item)}
+                          >
+                            set lowest price
+                          </Button>
+                        </>
+                      )}
+                      <DefaultButton onClick={() => handleEditPrice(item)}>
+                        Change price
+                      </DefaultButton>
+                      <TiDelete
+                        type="button"
+                        onClick={() => handleRemoveFromMarket(item)}
+                        className="text-black text-5xl text-blue-500 cursor-pointer"
+                      />
+                    </div>
                   </div>
                 )}
               </td>
@@ -129,7 +160,7 @@ const ItemsOnSale = () => {
           ))}
         </tbody>
       </table>
-      <WebSocketComponent ></WebSocketComponent>
+      <WebSocketComponent></WebSocketComponent>
     </div>
   )
 }

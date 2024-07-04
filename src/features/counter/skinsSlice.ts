@@ -103,15 +103,11 @@ export const skinsSlice = createSlice({
           }
         },
       )
-      .addMatcher(
-        skinsApi.endpoints.setItemOnSellingById.matchFulfilled,
-        (state, action) => {
-          const { originalArgs } = action.meta.arg
-          if (action.payload) {
-            state.items = [...state.items, originalArgs]
-          }
-        },
-      )
+      
+      .addMatcher(skinsApi.endpoints.removeAllItemsFromSale.matchFulfilled, state => {
+        state.status = "success"
+        state.items = []
+      })
       .addMatcher(skinsApi.endpoints.getSkinsOnSale.matchPending, state => {
         state.status = "loading"
       })

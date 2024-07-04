@@ -14,7 +14,7 @@ export const UserBalance = () => {
   
 
 
-  const [refetchBalance] = useLazyGetBalanceQuery()
+ 
   const [currency, setCurrency] = useState("USD")
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 70
@@ -23,7 +23,7 @@ export const UserBalance = () => {
     error,
     isLoading,
   } = useGetPricesWithBuyOrdersQuery(currency)
-  const { data: moneyBalance } = useGetBalanceQuery()
+  
 
   const handlePageChange = (pageNumber: any) => {
     setCurrentPage(pageNumber)
@@ -44,17 +44,7 @@ export const UserBalance = () => {
 
   return (
     <div className="bg-gray-200 p-4 space-y-4">
-      <div className="mb-4">
-        <span className="font-semibold text-lg">
-          Balance: {moneyBalance?.money}
-        </span>
-        <button
-          onClick={() => refetchBalance()}
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors"
-        >
-          Refetch
-        </button>
-      </div>
+      
       <div className="mb-4">
         <button
           onClick={() => setCurrency("USD")}

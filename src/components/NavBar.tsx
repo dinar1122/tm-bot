@@ -1,40 +1,87 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Navbar as FlowbiteNavbar } from "flowbite-react"
-import { useGetSkinsOnSaleQuery } from "../services/skinsApi"
+import {
+    useGetBalanceQuery,
+  useGetSkinsOnSaleQuery,
+  useLazyGetBalanceQuery,
+  useLazyGoOfflineQuery,
+  usePingSellingStatusMutation,
+} from "../services/skinsApi"
+import ToggleSwitch from "./UI/ToggleSwitch"
+import NavLink from "./UI/NavLink"
 
 export const Navbar = () => {
+  const { data: dataSelling, isFetching } = useGetSkinsOnSaleQuery()
+  const [pingSelling] = usePingSellingStatusMutation()
+  const [stopSelling] = useLazyGoOfflineQuery()
+  const [isSellingMode, setIsSellingMode] = useState(false)
+  const [refetchBalance] = useLazyGetBalanceQuery()
 
-    const { data: dataSelling, isFetching } = useGetSkinsOnSaleQuery()
+  const [pingInterval, setPingInterval] = useState<any>(null)
 
+  const { data: moneyBalance } = useGetBalanceQuery()
+
+  useEffect(() => {
+    if (isSellingMode) {
+      pingSelling()
+      const interval = setInterval(() => {
+        pingSelling()
+      }, 170000)
+      setPingInterval(interval)
+    } else {
+      if (pingInterval) {
+        clearInterval(pingInterval)
+        setPingInterval(null)
+      }
+      stopSelling()
+    }
+
+    return () => {
+      if (pingInterval) {
+        clearInterval(pingInterval)
+      }
+    }
+  }, [isSellingMode])
+
+  const handleToggleSellingMode = () => {
+    setIsSellingMode(prev => !prev)
+  }
   return (
     <FlowbiteNavbar fluid={true} rounded={true} className="p-0">
       <div className="flex p-4 w-full">
         <ul className="font-medium flex flex-col  p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-          <li>
-            <Link
-              to="/prices"
-              className="block py-2 px-3 bg-gray-200 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700  dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-            >
-              Price
-            </Link>
+          <li className="p-2">
+            <ToggleSwitch
+              type="checkbox"
+              checked={isSellingMode}
+              onChange={handleToggleSellingMode}
+              label="Sale Mode"
+            />
           </li>
           <li>
-            <Link
-              to="/"
-              className="block py-2 px-3 bg-gray-200 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700  dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-            >
-              inventory
-            </Link>
+            <div >
+              <span className="font-semibold text-lg">
+                Balance: {moneyBalance?.money}
+              </span>
+              <button
+                onClick={() => refetchBalance()}
+                className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-700 transition-colors"
+              >
+                Refetch
+              </button>
+            </div>
           </li>
           <li>
-            <Link
-              to="/selling"
-              className="block py-2 px-3 bg-gray-200 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700  dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-            >
-              on Sale items
-            </Link>
+            <NavLink to="/prices">Price</NavLink>
           </li>
+          <li>
+            <NavLink to="/">inventory</NavLink>
+          </li>
+          <li>
+            <NavLink to="/selling">on Sale items</NavLink>
+          </li>
+          <li></li>
         </ul>
       </div>
     </FlowbiteNavbar>

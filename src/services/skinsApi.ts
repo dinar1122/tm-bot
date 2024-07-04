@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { ACCESS_TOKEN } from '../constants';
 
 const API_KEY = '99nP6l7m8tZY6K3qEj20qgr2FvwwTP1';
 
@@ -48,6 +49,35 @@ export const skinsApi = createApi({
         method: 'GET',
       }),
     }),
+    goOffline: builder.query<any, void>({
+      query: () => ({
+        url: `go-offline?key=${API_KEY}`,
+        method: 'GET',
+      }),
+    }),
+    removeAllItemsFromSale: builder.query<any, void>({
+      query: () => ({
+        url: `remove-all-from-sale?key=${API_KEY}`,
+        method: 'GET',
+      }),
+    }),
+    pingSellingStatus: builder.mutation<any, void>({
+      query: () => {
+        const requestBody = { access_token: `${ACCESS_TOKEN}` };
+    
+        console.log('Request Body:', requestBody);
+    
+        return {
+          url: `ping-new?key=${API_KEY}`,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: requestBody,
+        };
+      },
+    }),
+    
   }),
 });
 
@@ -62,4 +92,7 @@ export const {
   useSetNewPriceForItemMutation,
   useSetItemOnSellingByIdMutation,
   useGetTokenWSQuery,
+  usePingSellingStatusMutation,
+  useLazyGoOfflineQuery,
+  useLazyRemoveAllItemsFromSaleQuery
 } = skinsApi;
