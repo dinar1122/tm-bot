@@ -9,6 +9,10 @@ const WebSocketComponent = () => {
   const dataMatching = useSelector(selectSkins);
   const status = useSelector(selectSkinsStatus);
 
+  const [storedLimits, setStoredLimits] = useState(
+    JSON.parse(localStorage.getItem("priceLimits") || "{}")
+  )
+
   const [messages, setMessages] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [matchedItems, setMatchedItems] = useState([]);
@@ -59,10 +63,14 @@ const WebSocketComponent = () => {
 
         if (targetItemNames.some(el => el === newItem.i_market_hash_name)) {
           const recommendedPrice = parseFloat((newItem.ui_price - 0.02).toFixed(2));
-          if (isAutoUpdate) {
-            dispatch(setRecommendedPriceAndUpdate({ hashName: newItem.i_market_hash_name, recommendedPrice }));
-          } else {
-            dispatch(setRecommendedPrice({ hashName: newItem.i_market_hash_name, recommendedPrice }));
+          console.log(storedLimits[newItem.i_market_hash_name], recommendedPrice)
+          const limitedPrice = storedLimits[newItem.i_market_hash_name]
+          if((limitedPrice < recommendedPrice) || limitedPrice === undefined) {
+            if (isAutoUpdate) {
+              dispatch(setRecommendedPriceAndUpdate({ hashName: newItem.i_market_hash_name, recommendedPrice }));
+            } else {
+              dispatch(setRecommendedPrice({ hashName: newItem.i_market_hash_name, recommendedPrice }));
+            }
           }
           setMatchedItems((prevMatchedItems) => {
             const updatedMatchedItems = [newItem, ...prevMatchedItems];

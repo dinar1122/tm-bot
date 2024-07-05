@@ -1,13 +1,13 @@
 import React, { useState } from "react"
 import {
-  useGetBalanceQuery,
+
   useGetPricesWithBuyOrdersQuery,
-  useLazyGetBalanceQuery,
+
 } from "../services/skinsApi"
 import { Pagination } from "./Pagination"
 import { Spinner } from "./UI/Spinner"
-import { useSelector } from "react-redux"
-import { selectSkins } from "../features/counter/skinsSlice"
+import { DefaultButton } from "./UI/buttons/DefaultButton"
+
 
 export const UserBalance = () => {
 
@@ -43,33 +43,30 @@ export const UserBalance = () => {
   const totalPages = Math.ceil((skins?.items?.length || 0) / itemsPerPage)
 
   return (
-    <div className="bg-gray-200 p-4 space-y-4">
+    <div className="bg-gray-200 p-4 space-y-4 ">
       
-      <div className="mb-4">
-        <button
+      <div className="flex space-x-3"><div className="mb-4 space-x-2">
+        <DefaultButton
           onClick={() => setCurrency("USD")}
-          className="mr-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700 transition-colors"
         >
           USD
-        </button>
-        <button
+        </DefaultButton>
+        <DefaultButton
           onClick={() => setCurrency("EUR")}
-          className="mr-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700 transition-colors"
         >
           EUR
-        </button>
-        <button
+        </DefaultButton>
+        <DefaultButton
           onClick={() => setCurrency("RUB")}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700 transition-colors"
         >
           RUB
-        </button>
+        </DefaultButton>
       </div>
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
-      />
+      /></div>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

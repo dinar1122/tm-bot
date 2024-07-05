@@ -7,7 +7,7 @@ interface DefaultLinkProps {
 
 const DefaultLink: React.FC<DefaultLinkProps> = ({ to, children }) => {
   return (
-    <a href={to} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+    <a href={to} className="font-medium text-blue-600 dark:text-blue-500 hover:underline h-min">
       {children}
     </a>
   );

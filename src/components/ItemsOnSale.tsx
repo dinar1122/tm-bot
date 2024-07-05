@@ -9,62 +9,95 @@ import { DefaultButton } from "./UI/buttons/DefaultButton"
 import { Spinner } from "./UI/Spinner"
 import WebSocketComponent from "../features/counter/WebSocketComponent"
 import { selectSkins, selectSkinsStatus } from "../features/counter/skinsSlice"
-import { Button, ToggleSwitch } from "flowbite-react"
+import { Button } from "flowbite-react"
 import { TiDelete } from "react-icons/ti"
 import { Link } from "react-router-dom"
 import { BASE_URL, BASE_URL_STEAMMARKET, BASE_URL_USER } from "../constants"
 import DefaultLink from "./UI/DefaultLink"
+import { MdOutlinePriceChange } from "react-icons/md"
+import DefaultInput from "./UI/DefaultInput"
+import { BiSave } from "react-icons/bi"
 
 const ItemsOnSale = () => {
   const data = useSelector(selectSkins)
   const status = useSelector(selectSkinsStatus)
 
+  const [storedLimits, setStoredLimits] = useState(
+    JSON.parse(localStorage.getItem("priceLimits") || "{}"),
+  )
+
   const [setNewPriceById] = useSetNewPriceForItemMutation()
   const [refetchItems] = useLazyGetSkinsOnSaleQuery()
   const [removeAllItems] = useLazyRemoveAllItemsFromSaleQuery()
   const [editingPrice, setEditingPrice] = useState(null)
+  const [editingPriceLimit, setEditingPriceLimit] = useState("")
   const [newPrice, setNewPrice] = useState("")
+  const [priceLimit, setPriceLimit] = useState("")
 
   useEffect(() => {
     refetchItems()
   }, [])
 
+  useEffect(() => {
+    if (editingPriceLimit) {
+      setPriceLimit(storedLimits[editingPriceLimit] || "")
+    }
+  }, [editingPriceLimit])
+
+  const handleSavePriceLimit = () => {
+    storedLimits[editingPriceLimit] = priceLimit
+    localStorage.setItem("priceLimits", JSON.stringify(storedLimits))
+    setEditingPriceLimit("")
+  }
+
   if (status === "loading") {
     return <Spinner />
   }
-  console.log(data)
+
   if (!data?.length) {
     return <div>No items on sale</div>
   }
 
   const itemsOnSale = data
 
-  const handleEditPrice = (item: any) => {
+  const handleEditPrice = item => {
     setEditingPrice(item.assetid)
+    if (editingPrice === item.assetid) {
+      setEditingPrice(null)
+    } else {
+      setEditingPrice(item.assetid)
+    }
     setNewPrice(item.price)
   }
 
-  const handleSavePrice = (item: any) => {
-    let price = parseFloat(newPrice) * 100
-    let itemId = item.item_id
+  const handleEditPriceLimit = item => {
+    if (editingPriceLimit === item.market_hash_name) {
+      setEditingPriceLimit(null)
+    } else {
+      setEditingPriceLimit(item.market_hash_name)
+    }
+  }
+
+  const handleSavePrice = item => {
+    const price = parseFloat(newPrice) * 100
+    const itemId = item.item_id
     setNewPriceById({ itemId, price })
     setEditingPrice(null)
   }
 
-  const handleRemoveFromMarket = (item: any) => {
-    console.log(1)
-    let price = 0
-    let itemId = item.item_id
+  const handleRemoveFromMarket = item => {
+    const price = 0
+    const itemId = item.item_id
     setNewPriceById({ itemId, price })
   }
+
   const handleRemoveAllFromMarket = () => {
     removeAllItems()
   }
 
-  const handleSaveRecommenendedPrice = (item: any) => {
-    let price = parseFloat(item.recommendedPrice) * 100
-    let itemId = item.item_id
-    console.log({ itemId, price })
+  const handleSaveRecommenendedPrice = item => {
+    const price = parseFloat(item.recommendedPrice) * 100
+    const itemId = item.item_id
     setNewPriceById({ itemId, price })
     setEditingPrice(null)
   }
@@ -72,18 +105,8 @@ const ItemsOnSale = () => {
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <div className="flex p-3 space-x-3">
-        <DefaultButton
-          onClick={() => {
-            refetchItems()
-          }}
-        >
-          Refetch
-        </DefaultButton>
-        <DefaultButton
-          onClick={() => {
-            handleRemoveAllFromMarket()
-          }}
-        >
+        <DefaultButton onClick={refetchItems}>Refetch</DefaultButton>
+        <DefaultButton onClick={handleRemoveAllFromMarket}>
           Remove all items from market
         </DefaultButton>
       </div>
@@ -154,13 +177,37 @@ const ItemsOnSale = () => {
                   </div>
                 ) : (
                   <div className="rounded-lg border border-blue-700 p-2 text-xl flex items-center justify-between">
-                    <span className="w-[150px] bg-blue-200 items-center p-2 selft-center rounded-lg">
-                      {item.price} rub
-                    </span>
+                    <div className="flex items-center space-x-3">
+                      <span className="w-[150px] bg-blue-200 items-center p-2 selft-center rounded-lg">
+                        {item.price} rub
+                      </span>
+                      {storedLimits[item.market_hash_name] && (
+                        <span className=" bg-red-200 items-center p-2 selft-center rounded-lg">
+                          Lim [{storedLimits[item.market_hash_name]}]
+                        </span>
+                      )}
+                      {editingPriceLimit === item.market_hash_name && (
+                        <>
+                          <DefaultInput
+                            value={priceLimit}
+                            onChange={e => setPriceLimit(e.target.value)}
+                          />
+                          <DefaultButton isIcon onClick={handleSavePriceLimit}>
+                            <BiSave className="text-3xl" />
+                          </DefaultButton>
+                        </>
+                      )}
+                      <DefaultButton
+                        isIcon
+                        onClick={() => handleEditPriceLimit(item)}
+                      >
+                        <MdOutlinePriceChange className="text-3xl" />
+                      </DefaultButton>
+                    </div>
                     <div className="flex items-center justify-between space-x-3">
                       {item.recommendedPrice && (
                         <>
-                          <span className="w-[150px]  items-center p-2 selft-center rounded-lg bg-green-200">
+                          <span className="w-[150px] items-center p-2 selft-center rounded-lg bg-green-200">
                             {item.recommendedPrice} rub
                           </span>
                           <Button
@@ -188,7 +235,7 @@ const ItemsOnSale = () => {
           ))}
         </tbody>
       </table>
-      <WebSocketComponent></WebSocketComponent>
+      <WebSocketComponent />
     </div>
   )
 }
