@@ -23,7 +23,7 @@ const initialState: SkinsSliceState = {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 //устранить проблему перехвата своей же цены
-export const setRecommendedPriceAndUpdate = createAsyncThunk<
+export const setRecommendedPriceAndUpdate  = createAsyncThunk<
   void,
   { hashName: string; recommendedPrice: number; signal: AbortSignal },
   { state: RootState }

@@ -11,7 +11,7 @@ import { Button } from "flowbite-react"
 import SkinCard from "../../components/SkinCard"
 
 const WebSocketComponent = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<any>()
   const dataMatching = useSelector(selectSkins)
   const status = useSelector(selectSkinsStatus)
 
@@ -99,11 +99,6 @@ const WebSocketComponent = () => {
                 abortControllers.current[itemId] = controller
 
                 if (isAutoUpdate) {
-                  console.log({
-                    hashName: newItem.i_market_hash_name,
-                    recommendedPrice,
-                    signal: controller.signal,
-                  })
                   dispatch(
                     setRecommendedPriceAndUpdate({
                       hashName: newItem.i_market_hash_name,

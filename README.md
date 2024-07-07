@@ -1,17 +1,26 @@
-# vite-template-redux
+**Описание проекта**
 
-Uses [Vite](https://vitejs.dev/), [Vitest](https://vitest.dev/), and [React Testing Library](https://github.com/testing-library/react-testing-library) to create a modern [React](https://react.dev/) app compatible with [Create React App](https://create-react-app.dev/)
+Проект представляет собой клиентское приложение для управления покупками и продажей косметических предметов игры CS2. Приложение использует API [market.csgo.com](https://market.csgo.com/api/v2/) для взаимодействия с маркетплейсом.
 
-```sh
-npx degit reduxjs/redux-templates/packages/vite-template-redux my-app
-```
+**Технологии, использованные в проекте:**
 
-## Goals
+- **React**: библиотека для построения пользовательских интерфейсов.
+- **Redux Toolkit (RTK)**: для управления состоянием приложения.
+- **RTK Query**: для упрощения работы с API и асинхронными запросами.
+- **Flowbite**: библиотека компонентов на основе Tailwind CSS для создания стильного и отзывчивого интерфейса.
 
-- Easy migration from Create React App or Vite
-- As beginner friendly as Create React App
-- Optimized performance compared to Create React App
-- Customizable without ejecting
+**Функциональность:**
+
+- Подключение к WebSocket для получения обновлений о новых товарах в реальном времени.
+- Управление и настройка цен на предметы.
+- Автоматическое обновление цен в зависимости от текущих условий рынка.
+- Поддержка ручного и автоматического режима обновления цен.
+- Отображение истории цен и текущих предложений на рынке.
+
+Приложение обеспечивает удобный интерфейс для пользователей, позволяя им эффективно управлять своим инвентарем и быстро реагировать на изменения рынка косметических предметов для игры CS2.
+## Превью
+
+![Страница продажи предметов](https://i.ibb.co/64Qz2Rt/sale-page.png)
 
 ## Scripts
 
