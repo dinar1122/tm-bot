@@ -3,6 +3,7 @@ import { ACCESS_TOKEN, BASE_URL } from '../constants';
 
 const API_KEY = '99nP6l7m8tZY6K3qEj20qgr2FvwwTP1';
 
+const token_ls = localStorage.getItem('access_token')
 export const skinsApi = createApi({
   reducerPath: 'skinsApi',
   baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
@@ -63,7 +64,7 @@ export const skinsApi = createApi({
     }),
     pingSellingStatus: builder.mutation<any, void>({
       query: () => {
-        const requestBody = { access_token: `${ACCESS_TOKEN}` };
+        const requestBody = { access_token: `${token_ls}` };
     
         console.log('Request Body:', requestBody);
     

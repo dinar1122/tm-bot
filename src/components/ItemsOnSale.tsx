@@ -17,6 +17,7 @@ import DefaultLink from "./UI/DefaultLink"
 import { MdOutlinePriceChange } from "react-icons/md"
 import DefaultInput from "./UI/DefaultInput"
 import { BiSave } from "react-icons/bi"
+import InfoAlert from "./UI/InfoAlert"
 
 const ItemsOnSale = () => {
   const data = useSelector(selectSkins)
@@ -104,8 +105,9 @@ const ItemsOnSale = () => {
 
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+         <InfoAlert message="Some item been bought" />
       <div className="flex p-3 space-x-3">
-        <DefaultButton onClick={refetchItems}>Refetch</DefaultButton>
+        <DefaultButton onClick={()=>refetchItems()}>Refetch</DefaultButton>
         <DefaultButton onClick={handleRemoveAllFromMarket}>
           Remove all items from market
         </DefaultButton>

@@ -1,52 +1,73 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit"
-import { AppThunk, RootState } from "../../app/store"
-import { skinsApi } from "../../services/skinsApi"
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { AppThunk, RootState } from "../../app/store";
+import { skinsApi } from "../../services/skinsApi";
 
 export interface Skin {
-  item_id: string
-  market_hash_name: string
-  price: number
-  currency: string
-  status: string
-  recommendedPrice: number | null
+  item_id: string;
+  market_hash_name: string;
+  price: number;
+  currency: string;
+  status: string;
+  recommendedPrice: number | null;
 }
 
 export interface SkinsSliceState {
-  items: Skin[]
-  status: "success" | "loading" | "failed"
+  items: Skin[];
+  status: "success" | "loading" | "failed";
 }
 
 const initialState: SkinsSliceState = {
   items: [],
   status: "success",
-}
+};
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const setRecommendedPriceAndUpdate = createAsyncThunk<
   void,
-  { hashName: string; recommendedPrice: number },
+  { hashName: string; recommendedPrice: number; signal: AbortSignal },
   { state: RootState }
 >(
   "skinsOnSale/setRecommendedPriceAndUpdate",
-  async ({ hashName, recommendedPrice }, { dispatch, getState }) => {
-    const state = getState() as RootState
+  async ({ hashName, recommendedPrice, signal }, { dispatch, getState }) => {
+    const state = getState() as RootState;
     const skin = state.skinsOnSale.items.find(
-      skin => skin.market_hash_name === hashName,
-    )
+      (skin) => skin.market_hash_name === hashName
+    );
 
-    if ( skin && (skin.recommendedPrice === null || skin.recommendedPrice > recommendedPrice)) {
-      if ((skin.price) > recommendedPrice) {
-        dispatch(setRecommendedPrice({ hashName, recommendedPrice }))
-        await dispatch(
-        skinsApi.endpoints.setNewPriceForItem.initiate({
-          itemId: skin.item_id,
-          price: recommendedPrice * 100,
-        }),
-      )
+    if (skin && (skin.recommendedPrice === null || skin.recommendedPrice > recommendedPrice)) {
+      if (skin.price > recommendedPrice) {
+        dispatch(setRecommendedPrice({ hashName, recommendedPrice }));
+
+        let success = false;
+        while (!success) {
+          console.log(signal.aborted)
+          if (signal.aborted) {
+            console.log('signal is aborted, exit the loop')
+            success = true;
+            break;
+          }
+
+          const response = await dispatch(
+            skinsApi.endpoints.setNewPriceForItem.initiate({
+              itemId: skin.item_id,
+              price: recommendedPrice * 100,
+            })
+          );
+
+          const { data } = response;
+          if (data && data.success) {
+            success = true;
+          } else if (data && data.error === "too_often") {
+            await delay(5000); 
+          } else {
+            success = true;
+          }
+        }
       }
     }
-  },
+  }
 );
-
 export const skinsSlice = createSlice({
   name: "skins",
   initialState,
