@@ -71,38 +71,57 @@ const WebSocketComponent = () => {
             (newItem.ui_price - 0.02).toFixed(2),
           )
           console.log(newItem)
-          const limitedPrice = storedLimits[newItem.i_market_hash_name]
-          if ((limitedPrice < recommendedPrice) || limitedPrice === undefined) {
-
-            const skin = dataMatching.find(item => item.market_hash_name === newItem.i_market_hash_name);
-
-            console.log(abortControllers)
-            if (skin) {
-              const itemId = skin.item_id;
-  
-              if (abortControllers.current[itemId]) {
-                abortControllers.current[itemId].abort();
-                console.log(`ABORTED`, itemId);
-              }
-
-              const controller = new AbortController();
-              abortControllers.current[itemId] = controller;
-  
-              if (isAutoUpdate) {
-                dispatch(setRecommendedPriceAndUpdate({
-                  hashName: newItem.i_market_hash_name,
-                  recommendedPrice,
-                  signal: controller.signal,
-                }));
-              } else {
-                dispatch(setRecommendedPrice({ hashName: newItem.i_market_hash_name, recommendedPrice }));
-              }
-            }
-          }
           setMatchedItems(prevMatchedItems => {
             const updatedMatchedItems = [newItem, ...prevMatchedItems]
             return updatedMatchedItems.slice(0, 5)
           })
+          const limitedPrice = storedLimits[newItem.i_market_hash_name]
+          if (limitedPrice < recommendedPrice || limitedPrice === undefined) {
+            const skin = dataMatching.find(
+              item => item.market_hash_name === newItem.i_market_hash_name,
+            )
+            console.log(dataMatching)
+            if (skin) {
+              if (skin.recommendedPrice === null || skin.recommendedPrice > recommendedPrice) {
+                const itemId = skin.item_id
+
+                console.log(`recom price  ${skin.recommendedPrice}`)
+
+                if (abortControllers.current[itemId]) {
+                  abortControllers.current[itemId].abort()
+                  console.log(
+                    `ABORTED`,
+                    `новая рекомендуемая цена${recommendedPrice} меньше чем старая ${skin.recommendedPrice} либо равна null`,
+                    skin,
+                  )
+                }
+                const controller = new AbortController()
+                abortControllers.current[itemId] = controller
+
+                if (isAutoUpdate) {
+                  console.log({
+                    hashName: newItem.i_market_hash_name,
+                    recommendedPrice,
+                    signal: controller.signal,
+                  })
+                  dispatch(
+                    setRecommendedPriceAndUpdate({
+                      hashName: newItem.i_market_hash_name,
+                      recommendedPrice,
+                      signal: controller.signal,
+                    }),
+                  )
+                } else {
+                  dispatch(
+                    setRecommendedPrice({
+                      hashName: newItem.i_market_hash_name,
+                      recommendedPrice,
+                    }),
+                  )
+                }
+              }
+            }
+          }
         }
       }
 
@@ -114,7 +133,7 @@ const WebSocketComponent = () => {
         ws.close()
       }
     }
-  }, [isLoading, isError, dataToken])
+  }, [isLoading, isError, dataToken, dataMatching, dispatch])
 
   return (
     <div className="p-6 bg-gray-100 dark:bg-gray-900">

@@ -22,7 +22,7 @@ const initialState: SkinsSliceState = {
 };
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
+//устранить проблему перехвата своей же цены
 export const setRecommendedPriceAndUpdate = createAsyncThunk<
   void,
   { hashName: string; recommendedPrice: number; signal: AbortSignal },
@@ -43,7 +43,7 @@ export const setRecommendedPriceAndUpdate = createAsyncThunk<
         while (!success) {
           console.log(signal.aborted)
           if (signal.aborted) {
-            console.log('signal is aborted, exit the loop')
+            console.log('signal is aborted, exit the loop', recommendedPrice)
             success = true;
             break;
           }
@@ -59,7 +59,7 @@ export const setRecommendedPriceAndUpdate = createAsyncThunk<
           if (data && data.success) {
             success = true;
           } else if (data && data.error === "too_often") {
-            await delay(5000); 
+            await delay(8000); 
           } else {
             success = true;
           }
