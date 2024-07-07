@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { AppThunk, RootState } from "../../app/store";
 import { skinsApi } from "../../services/skinsApi";
 
-export interface Skin {
+export type Skin = {
   item_id: string;
   market_hash_name: string;
   price: number;
@@ -11,7 +11,7 @@ export interface Skin {
   recommendedPrice: number | null;
 }
 
-export interface SkinsSliceState {
+export type SkinsSliceState = {
   items: Skin[];
   status: "success" | "loading" | "failed";
 }

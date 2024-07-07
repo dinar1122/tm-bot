@@ -61,7 +61,7 @@ const ItemsOnSale = () => {
 
   const itemsOnSale = data
 
-  const handleEditPrice = item => {
+  const handleEditPrice = (item) => {
     setEditingPrice(item.assetid)
     if (editingPrice === item.assetid) {
       setEditingPrice(null)
@@ -71,7 +71,7 @@ const ItemsOnSale = () => {
     setNewPrice(item.price)
   }
 
-  const handleEditPriceLimit = item => {
+  const handleEditPriceLimit = (item) => {
     if (editingPriceLimit === item.market_hash_name) {
       setEditingPriceLimit(null)
     } else {
@@ -79,14 +79,14 @@ const ItemsOnSale = () => {
     }
   }
 
-  const handleSavePrice = item => {
+  const handleSavePrice = (item) => {
     const price = parseFloat(newPrice) * 100
     const itemId = item.item_id
     setNewPriceById({ itemId, price })
     setEditingPrice(null)
   }
 
-  const handleRemoveFromMarket = item => {
+  const handleRemoveFromMarket = (item) => {
     const price = 0
     const itemId = item.item_id
     setNewPriceById({ itemId, price })
@@ -96,7 +96,7 @@ const ItemsOnSale = () => {
     removeAllItems()
   }
 
-  const handleSaveRecommenendedPrice = item => {
+  const handleSaveRecommenendedPrice = (item) => {
     const price = parseFloat(item.recommendedPrice) * 100
     const itemId = item.item_id
     setNewPriceById({ itemId, price })

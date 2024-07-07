@@ -1,6 +1,11 @@
 import React from "react";
+import { SkinItem } from "../features/counter/WebSocketComponent";
 
-const SkinCard = ({ item }:any) => {
+type  SkinCardProps = {
+  item: SkinItem;
+}
+
+const SkinCard = ({ item }:SkinCardProps) => {
   return (
     <div
       className={`p-4 bg-white ${item.ui_price > 10000 && "bg-red-200"} rounded-lg border`}

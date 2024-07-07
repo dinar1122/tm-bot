@@ -10,6 +10,25 @@ import {
 import { Button } from "flowbite-react"
 import SkinCard from "../../components/SkinCard"
 
+export type SkinItem = {
+  i_quality: string;
+  i_name_color: string;
+  i_classid: string;
+  i_instanceid: string;
+  i_market_hash_name: string;
+  i_market_name: string;
+  ui_price: number;
+  ui_currency: string;
+  ui_id: string;
+  ui_phase: string;
+  ui_float: string;
+  ui_paintseed: string;
+  ui_paintindex: string;
+  app: string;
+}
+
+
+
 const WebSocketComponent = () => {
   const dispatch = useDispatch<any>()
   const dataMatching = useSelector(selectSkins)
@@ -21,9 +40,9 @@ const WebSocketComponent = () => {
 
   const abortControllers = useRef<{ [key: string]: AbortController }>({})
 
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState<SkinItem[]>([])
   const [isConnected, setIsConnected] = useState(false)
-  const [matchedItems, setMatchedItems] = useState([])
+  const [matchedItems, setMatchedItems] = useState<SkinItem[]>([])
   const { data: dataToken, isLoading, isError } = useGetTokenWSQuery()
   const targetItemNames = dataMatching.map(item => item.market_hash_name)
 
@@ -61,7 +80,7 @@ const WebSocketComponent = () => {
         const message = JSON.parse(event.data)
         const newItem = JSON.parse(message.data)
 
-        setMessages(prevMessages => {
+        setMessages((prevMessages: SkinItem[]) => {
           const updatedMessages = [newItem, ...prevMessages]
           return updatedMessages.slice(0, 5)
         })
@@ -72,9 +91,9 @@ const WebSocketComponent = () => {
           )
           console.log(newItem)
           setMatchedItems(prevMatchedItems => {
-            const updatedMatchedItems = [newItem, ...prevMatchedItems]
-            return updatedMatchedItems.slice(0, 5)
-          })
+            const updatedMatchedItems = [newItem, ...prevMatchedItems];
+            return updatedMatchedItems.slice(0, 5);
+          });
           const limitedPrice = storedLimits[newItem.i_market_hash_name]
           if (limitedPrice < recommendedPrice || limitedPrice === undefined) {
             const skin = dataMatching.find(
@@ -148,7 +167,7 @@ const WebSocketComponent = () => {
         Connection status: {isConnected ? "Connected" : "Disconnected"}
       </p>
       <div className="space-x-4 flex-row h-[250px]">
-        {messages.map((item: any, index) => (
+        {messages.map((item: SkinItem, index) => (
           <SkinCard key={index} item={item} />
         ))}
       </div>
@@ -157,7 +176,7 @@ const WebSocketComponent = () => {
         Matched Items
       </h2>
       <ul className="space-x-4 flex-row h-[250px]">
-        {matchedItems.map((item: any, index) => (
+        {matchedItems.map((item: SkinItem, index) => (
           <SkinCard key={index} item={item} />
         ))}
       </ul>
