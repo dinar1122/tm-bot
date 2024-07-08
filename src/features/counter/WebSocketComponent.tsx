@@ -9,25 +9,7 @@ import {
 } from "./skinsSlice"
 import { Button } from "flowbite-react"
 import SkinCard from "../../components/SkinCard"
-
-export type SkinItem = {
-  i_quality: string;
-  i_name_color: string;
-  i_classid: string;
-  i_instanceid: string;
-  i_market_hash_name: string;
-  i_market_name: string;
-  ui_price: number;
-  ui_currency: string;
-  ui_id: string;
-  ui_phase: string;
-  ui_float: string;
-  ui_paintseed: string;
-  ui_paintindex: string;
-  app: string;
-}
-
-
+import { Skin, SkinItem } from "../../app/types"
 
 const WebSocketComponent = () => {
   const dispatch = useDispatch<any>()
@@ -44,7 +26,7 @@ const WebSocketComponent = () => {
   const [isConnected, setIsConnected] = useState(false)
   const [matchedItems, setMatchedItems] = useState<SkinItem[]>([])
   const { data: dataToken, isLoading, isError } = useGetTokenWSQuery()
-  const targetItemNames = dataMatching.map(item => item.market_hash_name)
+  const targetItemNames = dataMatching.map((item:Skin) => item.market_hash_name)
 
   const [isAutoUpdate, setIsAutoUpdate] = useState(true)
 
@@ -85,23 +67,26 @@ const WebSocketComponent = () => {
           return updatedMessages.slice(0, 5)
         })
 
-        if (targetItemNames.some(el => el === newItem.i_market_hash_name)) {
+        if (targetItemNames.some((el:Skin) => el === newItem.i_market_hash_name)) {
           const recommendedPrice = parseFloat(
             (newItem.ui_price - 0.02).toFixed(2),
           )
           console.log(newItem)
           setMatchedItems(prevMatchedItems => {
-            const updatedMatchedItems = [newItem, ...prevMatchedItems];
-            return updatedMatchedItems.slice(0, 5);
-          });
+            const updatedMatchedItems = [newItem, ...prevMatchedItems]
+            return updatedMatchedItems.slice(0, 5)
+          })
           const limitedPrice = storedLimits[newItem.i_market_hash_name]
           if (limitedPrice < recommendedPrice || limitedPrice === undefined) {
             const skin = dataMatching.find(
-              item => item.market_hash_name === newItem.i_market_hash_name,
+              (item:Skin) => item.market_hash_name === newItem.i_market_hash_name,
             )
             console.log(dataMatching)
             if (skin) {
-              if (skin.recommendedPrice === null || skin.recommendedPrice > recommendedPrice) {
+              if (
+                skin.recommendedPrice === null ||
+                skin.recommendedPrice > recommendedPrice
+              ) {
                 const itemId = skin.item_id
 
                 console.log(`recom price  ${skin.recommendedPrice}`)
@@ -118,6 +103,7 @@ const WebSocketComponent = () => {
                 abortControllers.current[itemId] = controller
 
                 if (isAutoUpdate) {
+                  console.log("dispatch")
                   dispatch(
                     setRecommendedPriceAndUpdate({
                       hashName: newItem.i_market_hash_name,

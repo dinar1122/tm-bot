@@ -1,73 +1,69 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import { AppThunk, RootState } from "../../app/store";
-import { skinsApi } from "../../services/skinsApi";
-
-export type Skin = {
-  item_id: string;
-  market_hash_name: string;
-  price: number;
-  currency: string;
-  status: string;
-  recommendedPrice: number | null;
-}
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit"
+import { AppThunk, RootState } from "../../app/store"
+import { skinsApi } from "../../services/skinsApi"
+import { Skin } from "../../app/types"
 
 export type SkinsSliceState = {
-  items: Skin[];
-  status: "success" | "loading" | "failed";
+  items: Skin[]
+  status: "success" | "loading" | "failed"
 }
 
 const initialState: SkinsSliceState = {
   items: [],
   status: "success",
-};
+}
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-//устранить проблему перехвата своей же цены
-export const setRecommendedPriceAndUpdate  = createAsyncThunk<
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+export const setRecommendedPriceAndUpdate = createAsyncThunk<
   void,
   { hashName: string; recommendedPrice: number; signal: AbortSignal },
   { state: RootState }
 >(
   "skinsOnSale/setRecommendedPriceAndUpdate",
   async ({ hashName, recommendedPrice, signal }, { dispatch, getState }) => {
-    const state = getState() as RootState;
+    const state = getState() as RootState
     const skin = state.skinsOnSale.items.find(
-      (skin) => skin.market_hash_name === hashName
-    );
+      (skin: Skin) => skin.market_hash_name === hashName,
+    )
 
-    if (skin && (skin.recommendedPrice === null || skin.recommendedPrice > recommendedPrice)) {
+    if (
+      skin &&
+      (skin.recommendedPrice === null ||
+        skin.recommendedPrice > recommendedPrice)
+    ) {
       if (skin.price > recommendedPrice) {
-        dispatch(setRecommendedPrice({ hashName, recommendedPrice }));
+        dispatch(setRecommendedPrice({ hashName, recommendedPrice }))
 
-        let success = false;
+        let success = false
         while (!success) {
           console.log(signal.aborted)
           if (signal.aborted) {
-            console.log('signal is aborted, exit the loop', recommendedPrice)
-            success = true;
-            break;
+            console.log("signal is aborted, exit the loop", recommendedPrice)
+            success = true
+            break
           }
 
           const response = await dispatch(
             skinsApi.endpoints.setNewPriceForItem.initiate({
               itemId: skin.item_id,
               price: recommendedPrice * 100,
-            })
-          );
+            }),
+          )
 
-          const { data } = response;
+          const { data } = response
           if (data && data.success) {
-            success = true;
+            success = true
           } else if (data && data.error === "too_often") {
-            await delay(8000); 
+            await delay(8000)
           } else {
-            success = true;
+            success = true
           }
         }
       }
     }
-  }
-);
+  },
+)
 export const skinsSlice = createSlice({
   name: "skins",
   initialState,
@@ -87,10 +83,11 @@ export const skinsSlice = createSlice({
         if (skin.market_hash_name === hashName) {
           if (
             skin.recommendedPrice === null ||
-            skin.recommendedPrice > recommendedPrice 
+            skin.recommendedPrice > recommendedPrice
           ) {
-            if ((skin.price) > recommendedPrice) {skin.recommendedPrice = recommendedPrice}
-            
+            if (skin.price > recommendedPrice) {
+              skin.recommendedPrice = recommendedPrice
+            }
           }
         }
       })
@@ -124,11 +121,14 @@ export const skinsSlice = createSlice({
           }
         },
       )
-      
-      .addMatcher(skinsApi.endpoints.removeAllItemsFromSale.matchFulfilled, state => {
-        state.status = "success"
-        state.items = []
-      })
+
+      .addMatcher(
+        skinsApi.endpoints.removeAllItemsFromSale.matchFulfilled,
+        state => {
+          state.status = "success"
+          state.items = []
+        },
+      )
       .addMatcher(skinsApi.endpoints.getSkinsOnSale.matchPending, state => {
         state.status = "loading"
       })

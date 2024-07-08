@@ -1,20 +1,10 @@
 import React, { useState } from "react"
-import {
-
-  useGetPricesWithBuyOrdersQuery,
-
-} from "../services/skinsApi"
-import { Pagination } from "./Pagination"
-import { Spinner } from "./UI/Spinner"
-import { DefaultButton } from "./UI/buttons/DefaultButton"
-
+import { useGetPricesWithBuyOrdersQuery } from "../services/skinsApi"
+import { Pagination } from "../components/Pagination"
+import { Spinner } from "../components/UI/Spinner"
+import { DefaultButton } from "../components/UI/buttons/DefaultButton"
 
 export const UserBalance = () => {
-
-  
-
-
- 
   const [currency, setCurrency] = useState("USD")
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 70
@@ -23,7 +13,6 @@ export const UserBalance = () => {
     error,
     isLoading,
   } = useGetPricesWithBuyOrdersQuery(currency)
-  
 
   const handlePageChange = (pageNumber: any) => {
     setCurrentPage(pageNumber)
@@ -44,29 +33,18 @@ export const UserBalance = () => {
 
   return (
     <div className="bg-gray-200 p-4 space-y-4 ">
-      
-      <div className="flex space-x-3"><div className="mb-4 space-x-2">
-        <DefaultButton
-          onClick={() => setCurrency("USD")}
-        >
-          USD
-        </DefaultButton>
-        <DefaultButton
-          onClick={() => setCurrency("EUR")}
-        >
-          EUR
-        </DefaultButton>
-        <DefaultButton
-          onClick={() => setCurrency("RUB")}
-        >
-          RUB
-        </DefaultButton>
+      <div className="flex space-x-3">
+        <div className="mb-4 space-x-2">
+          <DefaultButton onClick={() => setCurrency("USD")}>USD</DefaultButton>
+          <DefaultButton onClick={() => setCurrency("EUR")}>EUR</DefaultButton>
+          <DefaultButton onClick={() => setCurrency("RUB")}>RUB</DefaultButton>
+        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      /></div>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

@@ -1,9 +1,9 @@
 import "./App.css"
-import { UserBalance } from "./components/UserBalance"
+import { UserBalance } from "./pages/BestPrices"
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom"
 import UserInventory from "./pages/UserInventory"
 import { Navbar } from "./components/NavBar"
-import ItemsOnSale from "./components/ItemsOnSale"
+import ItemsOnSale from "./pages/ItemsOnSale"
 
 const App = () => {
   return (

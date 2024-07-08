@@ -5,19 +5,19 @@ import {
   useLazyRemoveAllItemsFromSaleQuery,
   useSetNewPriceForItemMutation,
 } from "../services/skinsApi"
-import { DefaultButton } from "./UI/buttons/DefaultButton"
-import { Spinner } from "./UI/Spinner"
+import { DefaultButton } from "../components/UI/buttons/DefaultButton"
+import { Spinner } from "../components/UI/Spinner"
 import WebSocketComponent from "../features/counter/WebSocketComponent"
 import { selectSkins, selectSkinsStatus } from "../features/counter/skinsSlice"
 import { Button } from "flowbite-react"
 import { TiDelete } from "react-icons/ti"
-import { Link } from "react-router-dom"
-import { BASE_URL, BASE_URL_STEAMMARKET, BASE_URL_USER } from "../constants"
-import DefaultLink from "./UI/DefaultLink"
+import { BASE_URL_STEAMMARKET, BASE_URL_USER } from "../constants"
+import DefaultLink from "../components/UI/DefaultLink"
 import { MdOutlinePriceChange } from "react-icons/md"
-import DefaultInput from "./UI/DefaultInput"
+import DefaultInput from "../components/UI/DefaultInput"
 import { BiSave } from "react-icons/bi"
-import InfoAlert from "./UI/InfoAlert"
+import InfoAlert from "../components/UI/InfoAlert"
+import { Skin, SkinItem, setPriceResponse } from "../app/types"
 
 const ItemsOnSale = () => {
   const data = useSelector(selectSkins)
@@ -30,9 +30,9 @@ const ItemsOnSale = () => {
   const [setNewPriceById] = useSetNewPriceForItemMutation()
   const [refetchItems] = useLazyGetSkinsOnSaleQuery()
   const [removeAllItems] = useLazyRemoveAllItemsFromSaleQuery()
-  const [editingPrice, setEditingPrice] = useState(null)
-  const [editingPriceLimit, setEditingPriceLimit] = useState("")
-  const [newPrice, setNewPrice] = useState("")
+  const [editingPrice, setEditingPrice] = useState<string>("")
+  const [editingPriceLimit, setEditingPriceLimit] = useState<any>("")
+  const [newPrice, setNewPrice] = useState<any>()
   const [priceLimit, setPriceLimit] = useState("")
 
   useEffect(() => {
@@ -61,17 +61,18 @@ const ItemsOnSale = () => {
 
   const itemsOnSale = data
 
-  const handleEditPrice = (item) => {
+  const handleEditPrice = (item: Skin) => {
+    console.log(item)
     setEditingPrice(item.assetid)
     if (editingPrice === item.assetid) {
-      setEditingPrice(null)
+      setEditingPrice("")
     } else {
       setEditingPrice(item.assetid)
     }
     setNewPrice(item.price)
   }
 
-  const handleEditPriceLimit = (item) => {
+  const handleEditPriceLimit = (item: Skin) => {
     if (editingPriceLimit === item.market_hash_name) {
       setEditingPriceLimit(null)
     } else {
@@ -79,14 +80,14 @@ const ItemsOnSale = () => {
     }
   }
 
-  const handleSavePrice = (item) => {
+  const handleSavePrice = (item: Skin) => {
     const price = parseFloat(newPrice) * 100
     const itemId = item.item_id
     setNewPriceById({ itemId, price })
-    setEditingPrice(null)
+    setEditingPrice("")
   }
 
-  const handleRemoveFromMarket = (item) => {
+  const handleRemoveFromMarket = (item: Skin) => {
     const price = 0
     const itemId = item.item_id
     setNewPriceById({ itemId, price })
@@ -96,18 +97,20 @@ const ItemsOnSale = () => {
     removeAllItems()
   }
 
-  const handleSaveRecommenendedPrice = (item) => {
-    const price = parseFloat(item.recommendedPrice) * 100
-    const itemId = item.item_id
-    setNewPriceById({ itemId, price })
-    setEditingPrice(null)
+  const handleSaveRecommenendedPrice = (item: Skin) => {
+    if (item.recommendedPrice) {
+      const price = item.recommendedPrice * 100
+      const itemId = item.item_id
+      setNewPriceById({ itemId, price })
+      setEditingPrice("")
+    }
   }
 
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-         <InfoAlert message="Some item been bought" />
+      <InfoAlert message="Some item been bought" />
       <div className="flex p-3 space-x-3">
-        <DefaultButton onClick={()=>refetchItems()}>Refetch</DefaultButton>
+        <DefaultButton onClick={() => refetchItems()}>Refetch</DefaultButton>
         <DefaultButton onClick={handleRemoveAllFromMarket}>
           Remove all items from market
         </DefaultButton>
@@ -192,7 +195,7 @@ const ItemsOnSale = () => {
                         <>
                           <DefaultInput
                             value={priceLimit}
-                            onChange={e => setPriceLimit(e.target.value)}
+                            onChange={(e: any) => setPriceLimit(e.target.value)}
                           />
                           <DefaultButton isIcon onClick={handleSavePriceLimit}>
                             <BiSave className="text-3xl" />
