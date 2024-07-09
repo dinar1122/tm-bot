@@ -12,7 +12,8 @@ dist
 dist-ssr
 *.local
 
-constants.ts
+src/constants.ts
+
 
 # Editor directories and files
 .vscode/*
