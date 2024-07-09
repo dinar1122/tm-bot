@@ -1,7 +1,6 @@
 import React, { useState } from "react"
 import {
   useGetSkinsAllowedForSaleQuery,
-  useLazyGetSkinsOnSaleQuery,
   useSetItemOnSellingByIdMutation,
 } from "../services/skinsApi"
 import { Spinner } from "../components/UI/Spinner"
@@ -31,7 +30,7 @@ const UserInventory = () => {
     return <Spinner />
   }
 
-  const { items: itemsForSale } = skinsForSale
+  const itemsForSale = skinsForSale?.items ?? []
 
   const sortItems = (items: any, direction: any) => {
     return [...items].sort((a, b) => {

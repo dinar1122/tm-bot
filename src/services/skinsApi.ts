@@ -8,6 +8,11 @@ import {
   setPriceResponse,
 } from "../app/types"
 
+export type SkinsAllowedForSaleResponse = {
+  success: boolean;
+  items: AllowedToSaleItem[];
+}
+
 const token_ls = localStorage.getItem("access_token")
 export const skinsApi = createApi({
   reducerPath: "skinsApi",
@@ -38,7 +43,7 @@ export const skinsApi = createApi({
       }),
     }),
     getSkinsAllowedForSale: builder.query<
-      { success: Boolean; items: AllowedToSaleItem[] },
+      { success: Boolean; items: AllowedToSaleItem[]  },
       void
     >({
       query: () => ({

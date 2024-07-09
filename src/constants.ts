@@ -3,4 +3,4 @@ export const ACCESS_TOKEN =
 export const BASE_URL = `https://market.csgo.com/api/v2/`
 export const BASE_URL_USER = `https://market-old.csgo.com/`
 export const BASE_URL_STEAMMARKET = `https://steamcommunity.com/market/listings/730/`
-export const API_KEY = "99nP6l7m8tZY6K3qEj20qgr2FvwwTP1"
+export const API_KEY = "X044XhM3mFQMVOfO93X2gf0ENvud2hy"

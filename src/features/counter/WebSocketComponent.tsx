@@ -26,7 +26,9 @@ const WebSocketComponent = () => {
   const [isConnected, setIsConnected] = useState(false)
   const [matchedItems, setMatchedItems] = useState<SkinItem[]>([])
   const { data: dataToken, isLoading, isError } = useGetTokenWSQuery()
-  const targetItemNames = dataMatching.map((item:Skin) => item.market_hash_name)
+  const targetItemNames = dataMatching.map(
+    (item: Skin) => item.market_hash_name,
+  )
 
   const [isAutoUpdate, setIsAutoUpdate] = useState(true)
 
@@ -67,7 +69,11 @@ const WebSocketComponent = () => {
           return updatedMessages.slice(0, 5)
         })
 
-        if (targetItemNames.some((el:Skin) => el === newItem.i_market_hash_name)) {
+        if (
+          targetItemNames.some(
+            (el: String) => el === newItem.i_market_hash_name,
+          )
+        ) {
           const recommendedPrice = parseFloat(
             (newItem.ui_price - 0.02).toFixed(2),
           )
@@ -79,7 +85,8 @@ const WebSocketComponent = () => {
           const limitedPrice = storedLimits[newItem.i_market_hash_name]
           if (limitedPrice < recommendedPrice || limitedPrice === undefined) {
             const skin = dataMatching.find(
-              (item:Skin) => item.market_hash_name === newItem.i_market_hash_name,
+              (item: Skin) =>
+                item.market_hash_name === newItem.i_market_hash_name,
             )
             console.log(dataMatching)
             if (skin) {

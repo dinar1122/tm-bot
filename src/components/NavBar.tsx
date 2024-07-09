@@ -17,7 +17,7 @@ import { FaRegQuestionCircle } from "react-icons/fa"
 import DefaultLink from "./UI/DefaultLink"
 
 export const Navbar = () => {
-  const { data: dataSelling, isFetching } = useGetSkinsOnSaleQuery()
+  useGetSkinsOnSaleQuery()
   const [pingSelling] = usePingSellingStatusMutation()
   const [stopSelling] = useLazyGoOfflineQuery()
   const [isSellingMode, setIsSellingMode] = useState(false)
